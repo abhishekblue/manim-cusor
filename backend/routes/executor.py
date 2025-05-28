@@ -2,24 +2,20 @@ import os, textwrap, subprocess, uuid
 from dispatcher import *
 from registry import *
 from schemas import *
+import re
 
 RENDER_DIR = "render/code"
 OUTPUT_DIR = "render/output"
 os.makedirs(RENDER_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-import re
 
 def format_latex_label(value: str) -> str:
-    """Convert pi-ish strings to LaTeX and wrap in $...$ if needed."""
     if not isinstance(value, str):
         return value
 
-    # Escape common patterns to LaTeX:
-    value = re.sub(r'(?<!\\)pi', r'\\pi', value)  # "pi" → "\pi" (if not already escaped)
-    value = re.sub(r'(?<!\\)frac', r'\\frac', value)  # "frac" → "\frac"
-    
-    # Wrap in $...$ only if it's not already
+    value = re.sub(r'(?<!\\)pi', r'\\pi', value)
+    value = re.sub(r'(?<!\\)frac', r'\\frac', value)
     if not (value.startswith("$") and value.endswith("$")):
         value = f"${value.strip('$')}$"
 
@@ -28,26 +24,17 @@ def format_latex_label(value: str) -> str:
 def validate_tool_call(raw_tool_call):
     tool = raw_tool_call["tool"]
     args_data = raw_tool_call["args"]
-
-    # Fix individual label
     if "label" in args_data:
         args_data["label"] = format_latex_label(args_data["label"])
-
-    # Fix tick labels
     for axis in ["x_ticks", "y_ticks"]:
         if axis in args_data:
             for k, v in args_data[axis].items():
                 args_data[axis][k] = format_latex_label(v)
-
-    # Normalize color
     if "color" in args_data:
         args_data["color"] = normalize_color(args_data["color"])
-
-    # Schema parsing
     args_class = tool_schemas.get(tool)
     if not args_class:
         raise ValueError(f"Unsupported tool: {tool}")
-
     args = args_class.parse_obj(args_data)
     return ToolCall(tool=tool, args=args)
 
