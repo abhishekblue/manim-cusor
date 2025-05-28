@@ -31,6 +31,25 @@ class ToolCallRequest(BaseModel):
 class Prompt(BaseModel):
     prompt: str
 
+
+def classify_prompt(prompt: str) -> str:
+    response = client.chat.completions.create(
+        model="openai/gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a classifier that only answers 'simple' or 'complex'."
+            },
+            {
+                "role": "user",
+                "content": f"Classify this Manim animation prompt:\n\n\"{prompt}\"\n\nAnswer only with 'simple' or 'complex'."
+            }
+        ],
+        max_tokens=100,
+        temperature=0
+    )
+    return response.choices[0].message.content.strip().lower()
+
 def is_complex_prompt(prompt: str) -> bool:
     complex_keywords = [
         "plot", "graph", "function", "equation", "axis", "axes", "sine", "cosine", "logarithmic",
@@ -99,13 +118,14 @@ def get_direct_manim_code(prompt: str) -> str:
     print (response.choices[0].message.content.strip())
     return response.choices[0].message.content.strip()
 
+############################################################
 
 @app.post("/generate")
 def generate_video_from_prompt(payload: Prompt):
     prompt = payload.prompt
-
+    print(classify_prompt(prompt))
     try:
-        if is_complex_prompt(prompt):
+        if classify_prompt(prompt) == "complex" or is_complex_prompt(prompt):
             raw_json = get_tool_calls(prompt)
             tool_calls = json.loads(raw_json)
             video_path, error = process_tool_calls(tool_calls)
