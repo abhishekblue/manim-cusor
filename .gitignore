@@ -1,0 +1,32 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual env
+.venv/
+env/
+venv/
+
+# OS files
+.DS_Store
+
+# Env variables
+.env
+
+# Manim render files
+media/
+videos/
+code/
+output/
+*.mp4
+
+# Jupyter / colab
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# Misc
+test.py
