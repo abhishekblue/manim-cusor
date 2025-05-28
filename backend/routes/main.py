@@ -1,0 +1,122 @@
+import traceback, os, json
+from openai import OpenAI
+from fastapi import FastAPI
+from pydantic import BaseModel
+from fastapi import HTTPException
+from dotenv import  load_dotenv
+from prompt import *
+from schemas import *
+from executor import *
+from registry import *
+
+load_dotenv()
+
+client = OpenAI(
+  base_url="https://openrouter.ai/api/v1",
+  api_key=os.getenv("OPENAI_API_KEY"),
+)
+
+app = FastAPI()
+
+class ToolCallInput(BaseModel):
+    tool_calls: list
+
+class ToolCall(BaseModel):
+    tool: str
+    args: dict
+
+class ToolCallRequest(BaseModel):
+    tool_calls: list[ToolCall]
+
+class Prompt(BaseModel):
+    prompt: str
+
+def is_complex_prompt(prompt: str) -> bool:
+    complex_keywords = [
+        "plot", "graph", "function", "equation", "axis", "axes", "sine", "cosine", "logarithmic",
+        "matrix", "vector field", "integral", "derivative", "parametric", "bar chart", "histogram"
+    ]
+    prompt_lower = prompt.lower()
+    if any(keyword in prompt_lower for keyword in complex_keywords):
+        return True
+    elif len(prompt) > 80:
+        return True
+    else:
+        return False
+
+
+def get_tool_calls(prompt: str):
+    try:
+        response = client.chat.completions.create(
+            model="openai/gpt-4o-mini",
+            messages=[
+                {
+                "role": "system",
+                "content": SYSTEM_PROMPT
+                },
+                
+                {"role": "user", "content": prompt}
+            ],
+            # max_tokens=1000
+        )
+        final_response = response.choices[0].message.content
+        if not final_response:
+            raise ValueError("Empty response from LLM")        
+        try:
+            tool_calls = json.loads(final_response)
+        except json.JSONDecodeError:
+            print("\n--- RAW LLM RESPONSE ---")
+            print(final_response)
+            print("--- END ---\n")
+            raise ValueError("LLM response is not valid JSON")
+
+        if not isinstance(tool_calls, list) or not all(
+            isinstance(item, dict) and "tool" in item and "args" in item
+            for item in tool_calls
+        ):
+            raise ValueError("LLM returned malformed tool_calls")
+
+        return final_response
+
+    except Exception as e:
+        print(f"LLM ERROR: {e}")
+        return None
+
+def get_direct_manim_code(prompt: str) -> str:
+    response = client.chat.completions.create(
+        model="openai/gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": SYSTEM_PROMPT_FOR_DIRECT_CODE
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    )
+    print (response.choices[0].message.content.strip())
+    return response.choices[0].message.content.strip()
+
+
+@app.post("/generate")
+def generate_video_from_prompt(payload: Prompt):
+    prompt = payload.prompt
+
+    try:
+        if is_complex_prompt(prompt):
+            raw_json = get_tool_calls(prompt)
+            tool_calls = json.loads(raw_json)
+            video_path, error = process_tool_calls(tool_calls)
+        else:
+            code = get_direct_manim_code(prompt)
+            video_path, error = save_and_render(code)
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Generation failed: {e}")
+
+    if error:
+        raise HTTPException(status_code=400, detail=error)
+
+    return {"video_path": video_path}
