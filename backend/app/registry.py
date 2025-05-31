@@ -1,6 +1,5 @@
 from typing import Union, Literal
 from pydantic import BaseModel
-from rapidfuzz import process
 from schemas import *
 
 tool_schemas = {
@@ -45,24 +44,3 @@ class ToolCall(BaseModel):
         CreateNumberLineArgs, AnimateTextChangeArgs, LabelAxesArgs, AddAxisMarkingsArgs,
         SurroundWithShapeArgs
     ]
-
-VALID_COLORS = ["RED", "BLUE", "GREEN", "YELLOW", "WHITE"]
-
-COLOR_MAP = {
-    "cyan": "BLUE",
-    "magenta": "RED",
-    "light green": "GREEN",
-    "lime": "GREEN",
-    "sky": "BLUE",
-    "aqua": "BLUE",
-    "grey": "WHITE",
-}
-
-def normalize_color(color: str) -> str:
-    clean = color.strip().lower()
-    if clean in COLOR_MAP:
-        return COLOR_MAP[clean]
-    match, score, _ = process.extractOne(clean, [c.lower() for c in VALID_COLORS])
-    if score >= 80:
-        return match.upper()
-    raise ValueError(f"Unrecognized color: '{color}' (score: {score})")
