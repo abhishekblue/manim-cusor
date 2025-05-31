@@ -21,7 +21,8 @@ Rules:
 - Colors must be: "RED", "BLUE", "GREEN", "YELLOW", "WHITE". Reject or remap unsupported colors to nearest similar color (e.g., treat "PURPLE" as "BLUE", or "MAGENTA" as "RED" etc.).
 - font_size must be an integer (default: 48).
 - Graph x_range and y_range must be a list of 2 or 3 numbers (e.g. [-3.14, 3.14]).
-- When the user asks for specific tick marks or coordinate labels on axes, use 'add_axis_markings' and provide x_ticks and y_ticks as dictionaries.
+- When showing tick marks, use 'add_axis_markings'. Ticks must be a flat dictionary where each key is a number (position) and value is a LaTeX-style label. Do NOT use "interval", "spacing", or "locations". Example: "x_ticks": { "-3.14": "-\\pi", "0": "0", "3.14": "\\pi" }
+- For 'label_axes', always include both x_label and y_label as strings. If unknown, default to "x" and "y".
 - Use only safe math functions (sin, cos, exp, etc.).
 - Make reasonable assumptions if the prompt is ambiguous.
 - Predeclare variables for all objects before referencing them.

@@ -1,13 +1,15 @@
-import traceback, os, json
-from openai import OpenAI
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from fastapi import HTTPException
 from dotenv import  load_dotenv
-from prompt import *
-from schemas import *
+from pydantic import BaseModel
+from fastapi import FastAPI
+import traceback, os, json
+from openai import OpenAI
 from executor import *
 from registry import *
+from schemas import *
+from prompt import *
 
 load_dotenv()
 
@@ -18,8 +20,13 @@ client = OpenAI(
 
 app = FastAPI()
 
-class ToolCallInput(BaseModel):
-    tool_calls: list
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://192.168.1.6:3000/"], 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class ToolCall(BaseModel):
     tool: str
@@ -76,9 +83,15 @@ def get_tool_calls(prompt: str):
                 
                 {"role": "user", "content": prompt}
             ],
+            temperature=0
             # max_tokens=1000
         )
         final_response = response.choices[0].message.content
+        final_response = final_response.replace('\\', '\\\\')
+        print("\n--- RAW TOOLCALL JSON ---")
+        print(final_response)
+        print("--- END ---\n")
+
         if not final_response:
             raise ValueError("Empty response from LLM")        
         try:
@@ -113,10 +126,15 @@ def get_direct_manim_code(prompt: str) -> str:
                 "role": "user",
                 "content": prompt
             }
-        ]
+            
+        ],
+        temperature=0
     )
-    print (response.choices[0].message.content.strip())
+    # print (response.choices[0].message.content.strip())
     return response.choices[0].message.content.strip()
+
+app.mount("/videos", StaticFiles(directory=os.path.abspath("render/output/videos")))
+app.mount("/code", StaticFiles(directory=os.path.abspath("render/code")))
 
 ############################################################
 
@@ -128,10 +146,10 @@ def generate_video_from_prompt(payload: Prompt):
         if classify_prompt(prompt) == "complex" or is_complex_prompt(prompt):
             raw_json = get_tool_calls(prompt)
             tool_calls = json.loads(raw_json)
-            video_path, error = process_tool_calls(tool_calls)
+            video_path, py_path, error = process_tool_calls(tool_calls)
         else:
             code = get_direct_manim_code(prompt)
-            video_path, error = save_and_render(code)
+            video_path, py_path, error = save_and_render(code)
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Generation failed: {e}")
@@ -139,4 +157,4 @@ def generate_video_from_prompt(payload: Prompt):
     if error:
         raise HTTPException(status_code=400, detail=error)
 
-    return {"video_path": video_path}
+    return {"video_path": video_path, "py_path": py_path}

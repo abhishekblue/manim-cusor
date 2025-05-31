@@ -138,16 +138,17 @@ def gen_add_shape(args):
 
 def gen_add_latex(args):
     pos = to_vec3(args.position)
-    if "\\\\" in args.latex or "\n" in args.latex:
+    latex_str = args.latex.replace("\\\\", "\\")
+    if "\\n" in latex_str or "\n" in latex_str:
         return (
-            f'latex = MathTex(r"""{args.latex}""", substrings_to_isolate=[], color={args.color})\n'
+            f'latex = MathTex(r"""{latex_str}""", substrings_to_isolate=[], color={args.color})\n'
             f'latex.scale(0.7)\n'
             f'latex.move_to({pos})\n'
             f'self.play(FadeIn(latex), run_time=1)'
         )
     else:
         return (
-            f'latex = MathTex(r"""{args.latex}""", color={args.color})\n'
+            f'latex = MathTex(r"""{latex_str}""", color={args.color})\n'
             f'latex.move_to({pos})\n'
             f'self.play(FadeIn(latex), run_time=1)'
         )
@@ -206,6 +207,7 @@ def gen_set_background_color(args):
 
 def gen_group_objects(args):
     return f"{args.group_name} = VGroup({', '.join(args.object_names)})"
+
 
 def gen_set_color(args):
     return f"self.play({args.object_name}.animate.set_color({args.color}))"
