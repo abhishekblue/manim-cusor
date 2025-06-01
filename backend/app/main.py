@@ -6,10 +6,10 @@ from pydantic import BaseModel
 from fastapi import FastAPI
 import traceback, os, json
 from openai import OpenAI
-from executor import *
-from registry import *
-from schemas import *
-from prompt import *
+from .executor import *
+from .registry import *
+from .schemas import *
+from .prompt import *
 
 load_dotenv()
 
