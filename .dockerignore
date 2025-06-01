@@ -1,0 +1,11 @@
+node_modules
+.next
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+*.db
+*.sqlite3

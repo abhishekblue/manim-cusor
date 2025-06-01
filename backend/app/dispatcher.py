@@ -1,4 +1,4 @@
-from code_generators import *
+from .code_generators import *
 
 code_generators = {
     "plot_graph": gen_plot_graph,

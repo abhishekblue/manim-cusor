@@ -1,8 +1,8 @@
 import os, textwrap, subprocess, uuid
 from rapidfuzz import process
-from dispatcher import *
-from registry import *
-from schemas import *
+from .dispatcher import *
+from .registry import *
+from .schemas import *
 import re
 
 RENDER_DIR = "render/code"
@@ -93,23 +93,6 @@ def validate_tool_call(raw_tool_call):
 
     args = args_class.parse_obj(args_data)
     return ToolCall(tool=tool, args=args)
-
-# def validate_tool_call(raw_tool_call):
-#     # tool = raw_tool_call["tool"]
-#     # args_data = raw_tool_call["args"]
-#     # if "label" in args_data:
-#     #     args_data["label"] = format_latex_label(args_data["label"])
-#     # for axis in ["x_ticks", "y_ticks"]:
-#     #     if axis in args_data:
-#     #         for k, v in args_data[axis].items():
-#     #             args_data[axis][k] = format_latex_label(v)
-#     # if "color" in args_data:
-#     #     args_data["color"] = normalize_color(args_data["color"])
-#     # args_class = tool_schemas.get(tool)
-#     # if not args_class:
-#     #     raise ValueError(f"Unsupported tool: {tool}")
-#     # args = args_class.parse_obj(args_data)
-#     # return ToolCall(tool=tool, args=args)
 
 
 def build_scene_code(validated_calls):

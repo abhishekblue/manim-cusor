@@ -1,6 +1,6 @@
 from typing import Union, Literal
 from pydantic import BaseModel
-from schemas import *
+from .schemas import *
 
 tool_schemas = {
     "add_text": AddTextArgs,
