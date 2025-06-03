@@ -115,7 +115,8 @@ def save_and_render(scene_code):
 
     with open(py_path, "w", encoding="utf-8") as f:
         f.write(scene_code)
-
+        f.flush()
+        os.fsync(f.fileno())
     try:
         subprocess.run([
             "manim", py_path, "AutoScene", "-ql", "--output_file", f"{uid}.mp4",

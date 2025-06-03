@@ -9,15 +9,16 @@ function SubmitPrompt() {
   const [codePath, setCodePath] = useState("");
   const [codeOutput, setCodeOutput] = useState("");
   const [isDataLoading, setIsDataLoading] = useState(false);
+  const base = process.env.NEXT_PUBLIC_API_BASE
 
   async function SendPrompt() {
     setIsDataLoading(true);
     try {
-      const {data} = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE}/generate`, {prompt})
+      const {data} = await axios.post(`${base}/generate`, {prompt})
       console.log(data);
       setVideoPath(data.video_path.split('\\').pop().split('.')[0])
       setCodePath(data.py_path.split('\\').pop().split('.')[0])
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/code/${codePath}.py`);
+      const res = await fetch(`${base}/code/${codePath}.py`);
       const text = await res.text();
       setCodeOutput(text);
     } catch (error) {
@@ -25,7 +26,6 @@ function SubmitPrompt() {
     } finally {
       setIsDataLoading(false);
     }
-    console.log("CODE PATH: ", codePath)
   }
 return (
   <div className="flex h-screen w-screen text-white bg-gray-900">
@@ -53,7 +53,7 @@ return (
             controls
             autoPlay
             className="w-full h-full object-contain"
-            src={`${process.env.NEXT_PUBLIC_API_BASE}/videos/${videoPath}/480p15/${videoPath}.mp4`}
+            src={`${base}/videos/${videoPath}/480p15/${videoPath}.mp4`}
           />
         </div>
       )}
