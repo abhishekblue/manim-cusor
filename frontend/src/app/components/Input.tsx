@@ -13,11 +13,11 @@ function SubmitPrompt() {
   async function SendPrompt() {
     setIsDataLoading(true);
     try {
-      const {data} = await axios.post('http://localhost:8000/generate', {prompt})
+      const {data} = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE}/generate`, {prompt})
       console.log(data);
       setVideoPath(data.video_path.split('\\').pop().split('.')[0])
       setCodePath(data.py_path.split('\\').pop().split('.')[0])
-      const res = await fetch(`http://localhost:8000/code/${codePath}.py`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/code/${codePath}.py`);
       const text = await res.text();
       setCodeOutput(text);
     } catch (error) {
@@ -53,7 +53,7 @@ return (
             controls
             autoPlay
             className="w-full h-full object-contain"
-            src={`http://localhost:8000/videos/${videoPath}/480p15/${videoPath}.mp4`}
+            src={`${process.env.NEXT_PUBLIC_API_BASE}/videos/${videoPath}/480p15/${videoPath}.mp4`}
           />
         </div>
       )}
