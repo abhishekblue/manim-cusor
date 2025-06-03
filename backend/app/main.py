@@ -22,7 +22,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://192.168.1.6:3000/"], 
+    allow_origins=["https://manim-cusor-1.onrender.com", "http://localhost:8000"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
