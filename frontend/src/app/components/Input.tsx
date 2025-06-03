@@ -9,8 +9,8 @@ function SubmitPrompt() {
   const [codePath, setCodePath] = useState("");
   const [codeOutput, setCodeOutput] = useState("");
   const [isDataLoading, setIsDataLoading] = useState(false);
-  const base = process.env.NEXT_PUBLIC_API_BASE
-
+  // const base = process.env.NEXT_PUBLIC_API_BASE
+  const base = "https://manim-cusor-1.onrender.com" // hardcoding as enviroment vairables as not being access at buildtime ( could be some other issue )
   async function SendPrompt() {
     setIsDataLoading(true);
     try {
