@@ -110,22 +110,29 @@ class AutoScene(Scene):
 
 def save_and_render(scene_code):
     uid = str(uuid.uuid4())
-    py_path = os.path.join(RENDER_DIR, f"{uid}.py")
+    #py_path = os.path.join(RENDER_DIR, f"{uid}.py")
+    py_path = os.path.abspath(os.path.join(RENDER_DIR, f"{uid}.py"))
     output_path = os.path.join(OUTPUT_DIR, f"{uid}.mp4")
 
     with open(py_path, "w", encoding="utf-8") as f:
         f.write(scene_code)
         f.flush()
         os.fsync(f.fileno())
+    print("py_path: ", py_path)
+    print("output_path: ", output_path)
+
     try:
         subprocess.run([
             "manim", py_path, "AutoScene", "-ql", "--output_file", f"{uid}.mp4",
-            "--media_dir", OUTPUT_DIR
-        ], check=True, shell=True, env=os.environ.copy(), creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+            "--media_dir", os.path.abspath(OUTPUT_DIR)
+        ], check=True, env=os.environ.copy())
     except subprocess.CalledProcessError as e:
+        print("OUTPUT_DIR: ", os.path.abspath(OUTPUT_DIR))
         return None, None, str(e)
-
-    return output_path, py_path, None
+    print("Expected output at:", os.path.join(os.path.abspath(OUTPUT_DIR), "videos", f"{uid}.mp4"))
+   # return output_path, py_path, None
+    video_url = f"/videos/{uid}/480p15/{uid}.mp4"
+    return video_url, py_path, None
 
 
 def process_tool_calls(raw_tool_calls):
@@ -135,7 +142,7 @@ def process_tool_calls(raw_tool_calls):
             validated.append(validate_tool_call(raw_call))
         except Exception as e:
             print(f"❌ Skipping invalid tool_call: {e}")
-    
+
     if not validated:
         return None
 
