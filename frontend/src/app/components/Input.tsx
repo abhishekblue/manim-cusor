@@ -9,16 +9,19 @@ function SubmitPrompt() {
   const [codePath, setCodePath] = useState("");
   const [codeOutput, setCodeOutput] = useState("");
   const [isDataLoading, setIsDataLoading] = useState(false);
-  // const base = process.env.NEXT_PUBLIC_API_BASE
-  const base = "https://manim-cusor-1.onrender.com" // hardcoding as enviroment vairables as not being access at buildtime ( could be some other issue )
+
+  const backendAPI = 'http://15.207.223.225:8000' // hardcoding as enviroment vairables as not being access at buildtime ( could be some other issue )
   async function SendPrompt() {
     setIsDataLoading(true);
     try {
-      const {data} = await axios.post(`${base}/generate`, {prompt})
+      const {data} = await axios.post(`${backendAPI}/generate`, {prompt})
       console.log(data);
-      setVideoPath(data.video_path.split('\\').pop().split('.')[0])
-      setCodePath(data.py_path.split('\\').pop().split('.')[0])
-      const res = await fetch(`${base}/code/${codePath}.py`);
+      setVideoPath(data.video_path)
+      const pyPath = data.py_path
+      const filename = pyPath.split("/").pop()
+      const url = `${backendAPI}/code/${filename}`;
+      setCodePath(url)
+      const res = await fetch(url);
       const text = await res.text();
       setCodeOutput(text);
     } catch (error) {
@@ -53,7 +56,7 @@ return (
             controls
             autoPlay
             className="w-full h-full object-contain"
-            src={`${base}/videos/${videoPath}/480p15/${videoPath}.mp4`}
+            src={`${backendAPI}${videoPath}`}
           />
         </div>
       )}
