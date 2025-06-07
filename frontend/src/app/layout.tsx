@@ -1,38 +1,21 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "./components/Sidebar";
-import {Navbar} from "./components/Navbar";
-import type { Metadata } from "next";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
-import "./globals.css";
+import './globals.css'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "Your App",
-  description: "Now with Clerk auth",
-};
+  title: 'Manim Animator',
+  description: 'Generate math animations using Manim from natural language prompts',
+}
 
-
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-// <ClerkProvider>  
-  <html>
-      <body className="bg-black text-white">
-        <SidebarProvider>
-          <AppSidebar />
-          <main>
-            <Navbar />
-            <SidebarTrigger />
-            {children}
-          </main>
-        </SidebarProvider>
+    <html lang="en" className="dark">
+      <body className="bg-gray-900 text-white">
+        {children}
       </body>
     </html>
-// </ClerkProvider>
-  );
+  )
 }
