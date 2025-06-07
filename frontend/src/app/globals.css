@@ -110,11 +110,12 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
-@layer base {
+/* @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    @apply dark:bg-gray-900 dark:text-white;
   }
-}
+} */
