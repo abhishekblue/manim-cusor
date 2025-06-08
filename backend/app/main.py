@@ -1,6 +1,8 @@
+from fastapi.responses import JSONResponse
+from middleware.rate_limit import request_counts
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
 from dotenv import  load_dotenv
 from pydantic import BaseModel
 from fastapi import FastAPI
@@ -22,7 +24,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://15.207.223.225:3000"],
+    allow_origins=["http://localhost:3000", "http://15.207.223.225:3000", "http://192.168.1.6:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -158,3 +160,23 @@ def generate_video_from_prompt(payload: Prompt):
         raise HTTPException(status_code=400, detail=error)
 
     return {"video_path": video_path, "py_path": py_path}
+
+
+@app.get("/usage")
+def get_usage(request: Request):
+    ip = request.client.host
+    x_auth = request.headers.get("x-auth")
+
+    if x_auth == "true":
+        is_logged_in = True
+    else:
+        is_logged_in = False
+
+    if is_logged_in:
+        limit = 5
+    else:
+        limit = 2
+
+    used = request_counts.get(ip, 0)  # ✅ fallback to 0
+    return JSONResponse(content={"used": used, "limit": limit})
+

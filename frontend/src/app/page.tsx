@@ -1,6 +1,4 @@
 'use client'
-
-import './globals.css';
 import axios from 'axios'
 import { useState } from 'react'
 import Navbar from './components/Navbar'
@@ -18,7 +16,7 @@ export default function Home() {
     const [isDisplayPlayer, setisDisplayPlayer] = useState(false);
     
     const backendAPI = 'http://15.207.223.225:8000' 
-    async function onClick() {
+    async function generateAnimation() {
     setIsDataLoading(true);
     setisDisplayPlayer(true);
     try {
@@ -45,18 +43,18 @@ export default function Home() {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
         <main className="flex-1 flex flex-col items-center justify-start overflow-y-auto p-4">
+        <PromptInput
+          isDataLoading={isDataLoading}
+          onClick={generateAnimation}
+          setPrompt={setPrompt}
+        />
           <VideoDisplay
             isDisplayPlayer = {isDisplayPlayer}
             videoPath={`${backendAPI}${videoPath}`}
           />
-          <PromptInput
-          isDataLoading={isDataLoading}
-          onClick={onClick}
-          setPrompt={setPrompt}
-        />
-        {isDataLoading && (
+        {/* {isDataLoading && (
             <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full"></div>
-          )}
+          )} */}
         </main>
         { codePath &&
         <CodeDisplay
