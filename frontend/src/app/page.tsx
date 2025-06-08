@@ -52,9 +52,6 @@ export default function Home() {
             isDisplayPlayer = {isDisplayPlayer}
             videoPath={`${backendAPI}${videoPath}`}
           />
-        {/* {isDataLoading && (
-            <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full"></div>
-          )} */}
         </main>
         { codePath &&
         <CodeDisplay

@@ -11,7 +11,7 @@ export default function UsageTracker() {
     useEffect(() => {
     const getUsage = async () => {
         try {
-        const { data } = await axios.get("http://localhost:8000/usage", {
+        const { data } = await axios.get("http://15.207.223.225:8000/usage", {
             headers: {
             "x-auth": isSignedIn ? true : false,
             },

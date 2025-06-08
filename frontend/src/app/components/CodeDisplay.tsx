@@ -1,22 +1,3 @@
-// 'use client'
-// import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-// import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-
-// interface Props {
-//   codeOutput: string;
-// }
-
-// export default function CodeDisplay({ codeOutput }: Props) {
-//   return (
-//     <aside className="w-1/4 min-w-[300px] bg-gray-800 border-l rounded-xs border-gray-700 p-4 overflow-y-auto hidden lg:block">
-//       <h2 className="text-lg font-semibold mb-2">Generated Code</h2>
-//       <SyntaxHighlighter language="python" style={vscDarkPlus} wrapLongLines>
-//         {codeOutput}
-//       </SyntaxHighlighter>
-//           </aside>
-//   );
-// }
-
 "use client"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism"
