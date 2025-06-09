@@ -43,7 +43,7 @@ backend/
 frontend/
 ├── app/
 │   ├── page.tsx             # Main UI with prompt input
-│   └── components/input.tsx # Input form logic
+│   └── components/page.tsx # Input form logic
 ```
 
 ---
@@ -128,20 +128,23 @@ Full argument validation handled via Pydantic models in `schemas.py`.
 
 ---
 
-## TODO
-
-- [ ] Add frontend styling and video history
-- [ ] Add memory for object references
-- [ ] Docker support
-- [ ] Prompt history + database
-
----
-
 ## Credits
 
 Inspired by [3Blue1Brown](https://www.3blue1brown.com/) and powered by [Manim Community Edition](https://github.com/ManimCommunity/manim). Prompt classification and tool_call generation via LLM (OpenAI GPT-4o-mini).
 
 ---
+
+## Troubleshoot
+
+You might have to use these commands, if you face error while running `pip install -r requirements.txt` during installation on `pangocairo`.
+```
+sudo apt install -y build-essential libcairo2-dev
+
+sudo apt install -y libpango1.0-dev libgirepository1.0-dev
+
+sudo apt install -y python3-dev pkg-config
+
+```
 
 ## License
 

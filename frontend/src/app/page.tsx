@@ -15,7 +15,7 @@ export default function Home() {
     const [isDataLoading, setIsDataLoading] = useState(false);
     const [isDisplayPlayer, setisDisplayPlayer] = useState(false);
     
-    const backendAPI = 'http://15.207.223.225:8000' 
+    const backendAPI = 'https://api.renderconcepts.com'
     async function generateAnimation() {
     setIsDataLoading(true);
     setisDisplayPlayer(true);

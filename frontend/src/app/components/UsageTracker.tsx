@@ -11,9 +11,9 @@ export default function UsageTracker() {
     useEffect(() => {
     const getUsage = async () => {
         try {
-        const { data } = await axios.get("http://15.207.223.225:8000/usage", {
+        const { data } = await axios.get("https://api.renderconcepts.com/usage", {
             headers: {
-            "x-auth": isSignedIn ? true : false,
+            "x-auth": isSignedIn ? 'true' : 'false',
             },
         });
         setLimit(data.limit)

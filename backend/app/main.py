@@ -1,5 +1,5 @@
 from fastapi.responses import JSONResponse
-from middleware.rate_limit import request_counts
+from middleware.rate_limit import RateLimitMiddleware, request_counts
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi import HTTPException, Request
@@ -22,9 +22,10 @@ client = OpenAI(
 
 app = FastAPI()
 
+app.add_middleware(RateLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://15.207.223.225:3000", "http://192.168.1.6:3000"],
+    allow_origins=["http://localhost:3000", "http://192.168.1.6:3000", "https://renderconcepts.com", "https://www.renderconcepts.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
