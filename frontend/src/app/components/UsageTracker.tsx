@@ -1,24 +1,36 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
-import { useAuth } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
+const backendAPI = process.env.NEXT_PUBLIC_API_BASE!;
 
-export default function UsageTracker() {
+export default function UsageTracker({ trigger }: { trigger: number }) {
     const [used, setUsed] = useState()
     const [limit, setLimit] = useState()
     const [loading, setLoading] = useState(true)
-    const {isSignedIn} = useAuth()
+    const { isSignedIn, user } = useUser();
+    
+    useEffect(() => {
+      if (isSignedIn && user?.id) {
+        axios.post(`${backendAPI}/signup`, null, {
+          headers: {
+            "x-user-id": user.id,
+          },
+        }).catch((err) => {
+          console.error("Signup sync failed:", err);
+        });
+      }
+  }, [isSignedIn, user?.id]);
 
     useEffect(() => {
     const getUsage = async () => {
         try {
-        const { data } = await axios.get("https://api.renderconcepts.com/usage", {
+        const { data } = await axios.get(`${backendAPI}/usage`, {
             headers: {
             "x-auth": isSignedIn ? 'true' : 'false',
             },
         });
         setLimit(data.limit)
         setUsed(data.used)
-        console.log(used, limit)
         } catch (error) {
             console.error(error)
         } finally {
@@ -26,7 +38,8 @@ export default function UsageTracker() {
         }
     }
     getUsage()
-    }, [used, limit, isSignedIn])
+    }, [isSignedIn, trigger])
+
     return (
     <div className="text-right">
     {loading ? (
@@ -35,7 +48,7 @@ export default function UsageTracker() {
       <div>Failed to load usage data</div>
     ) : (
       <div className="place-items-center">
-        <div>Credits: {limit! - used!}<span className="text-xs text-gray-400"> ( Will be adding DB soon. Till then credits wont update. )</span> </div>
+        <div>Credits: {limit! - used!}</div>
       </div>
     )}
   </div>

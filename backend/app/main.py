@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from fastapi import FastAPI
 import traceback, os, json
 from openai import OpenAI
+from .db import supabase
 from .executor import *
 from .registry import *
 from .schemas import *
@@ -15,17 +16,24 @@ from .prompt import *
 
 load_dotenv()
 
+app = FastAPI()
+
+ENV = os.getenv("ENVIRONMENT", "local")
+
+if ENV == "production":
+    ALLOWED_ORIGINS = ["https://renderconcepts.com", "https://www.renderconcepts.com"]
+else:
+    ALLOWED_ORIGINS = ["http://localhost:3000", "http://192.168.1.6:3000"]
+
 client = OpenAI(
   base_url="https://openrouter.ai/api/v1",
   api_key=os.getenv("OPENAI_API_KEY"),
 )
 
-app = FastAPI()
-
 app.add_middleware(RateLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://192.168.1.6:3000", "https://renderconcepts.com", "https://www.renderconcepts.com"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -174,10 +182,29 @@ def get_usage(request: Request):
         is_logged_in = False
 
     if is_logged_in:
-        limit = 5
+        limit = 20
     else:
-        limit = 2
+        limit = 5
 
     used = request_counts.get(ip, 0)  # ✅ fallback to 0
     return JSONResponse(content={"used": used, "limit": limit})
 
+
+@app.post("/signup")
+def handle_signup(request: Request):
+    clerk_id = request.headers.get("x-user-id")
+    if not clerk_id:
+        raise HTTPException(status_code=400, detail="Missing Clerk ID")
+
+    # Check if user already exists
+    user = supabase.table("users").select("*").eq("clerk_id", clerk_id).single().execute()
+    if user.data:
+        return {"msg": "User already exists"}
+
+    # Create new user
+    supabase.table("users").insert({
+        "clerk_id": clerk_id,
+        "credits": 20
+    }).execute()
+
+    return {"msg": "User created with 10 credits"}

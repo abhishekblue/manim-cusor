@@ -9,7 +9,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         x_auth = request.headers.get("x-auth")
 
         is_logged_in = x_auth == "true"
-        limit = 5 if is_logged_in else 2
+        limit = 20 if is_logged_in else 5
 
         if request.url.path == "/generate":
             request_counts[ip] = request_counts.get(ip, 0) + 1

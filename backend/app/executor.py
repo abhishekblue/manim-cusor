@@ -110,8 +110,8 @@ class AutoScene(Scene):
 
 def save_and_render(scene_code):
     uid = str(uuid.uuid4())
-    #py_path = os.path.join(RENDER_DIR, f"{uid}.py")
-    py_path = os.path.abspath(os.path.join(RENDER_DIR, f"{uid}.py"))
+    py_path = os.path.join(RENDER_DIR, f"{uid}.py")
+    py_url = f"/code/{uid}.py"
     output_path = os.path.join(OUTPUT_DIR, f"{uid}.mp4")
 
     with open(py_path, "w", encoding="utf-8") as f:
@@ -123,16 +123,14 @@ def save_and_render(scene_code):
 
     try:
         subprocess.run([
-            "manim", py_path, "AutoScene", "-ql", "--output_file", f"{uid}.mp4",
-            "--media_dir", os.path.abspath(OUTPUT_DIR)
-        ], check=True, env=os.environ.copy())
+            "manim", py_path, "AutoScene", "-ql", "--output_file", f"{uid}.mp4", "--media_dir", os.path.abspath(OUTPUT_DIR)
+            ], check=True, env=os.environ.copy())
     except subprocess.CalledProcessError as e:
         print("OUTPUT_DIR: ", os.path.abspath(OUTPUT_DIR))
         return None, None, str(e)
     print("Expected output at:", os.path.join(os.path.abspath(OUTPUT_DIR), "videos", f"{uid}.mp4"))
-   # return output_path, py_path, None
     video_url = f"/videos/{uid}/480p15/{uid}.mp4"
-    return video_url, py_path, None
+    return video_url, py_url, None
 
 
 def process_tool_calls(raw_tool_calls):

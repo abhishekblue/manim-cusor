@@ -3,10 +3,10 @@
 import { useState } from "react"
 import { SignInButton, SignOutButton, useAuth } from "@clerk/nextjs"
 import { Menu, X } from "lucide-react"
-import { FaBolt, FaGithub, FaXTwitter } from "react-icons/fa6";
 import UsageTracker from "./UsageTracker"
+import { FaBolt, FaGithub, FaXTwitter } from "react-icons/fa6";
 
-export default function Navbar() {
+export default function Navbar({ usageTrigger }: { usageTrigger: number }) {
   const { userId } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -28,7 +28,7 @@ export default function Navbar() {
 
               <div className="flex items-center space-x-2 rounded-full bg-gradient-to-r from-blue-900/30 to-purple-900/30 px-4 py-2 border border-blue-500/20">
                 <FaBolt className="h-4 w-4 text-blue-400" />
-                <UsageTracker />
+                <UsageTracker trigger={usageTrigger}/>
               </div>
             
 
@@ -85,7 +85,7 @@ export default function Navbar() {
                     <FaBolt className="h-4 w-4 text-blue-400" />
                     <span className="text-sm font-medium text-gray-300">Credits</span>
                   </div>
-                  <UsageTracker />
+                  <UsageTracker trigger={usageTrigger}/>
                 </div>
               )}
 

@@ -6,6 +6,7 @@ import Sidebar from './components/Sidebar'
 import VideoDisplay from './components/VideoDisplay'
 import CodeDisplay from './components/CodeDisplay'
 import PromptInput from './components/PromptInput'
+const backendAPI = process.env.NEXT_PUBLIC_API_BASE!;
 
 export default function Home() {
     const [prompt, setPrompt] = useState("");
@@ -14,8 +15,9 @@ export default function Home() {
     const [codeOutput, setCodeOutput] = useState("");
     const [isDataLoading, setIsDataLoading] = useState(false);
     const [isDisplayPlayer, setisDisplayPlayer] = useState(false);
+    const [usageTrigger, setUsageTrigger] = useState(0);
+
     
-    const backendAPI = 'https://api.renderconcepts.com'
     async function generateAnimation() {
     setIsDataLoading(true);
     setisDisplayPlayer(true);
@@ -34,12 +36,13 @@ export default function Home() {
     console.error(error); 
     } finally {
       setIsDataLoading(false);
+      setUsageTrigger(prev => prev + 1)
     }
   }
   return (
     <>
     <div className="flex flex-col min-h-screen">
-      <Navbar />
+      <Navbar usageTrigger={usageTrigger}/>
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
         <main className="flex-1 flex flex-col items-center justify-start overflow-y-auto p-4">
@@ -51,6 +54,7 @@ export default function Home() {
           <VideoDisplay
             isDisplayPlayer = {isDisplayPlayer}
             videoPath={`${backendAPI}${videoPath}`}
+            
           />
         </main>
         { codePath &&
