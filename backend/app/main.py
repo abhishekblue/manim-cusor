@@ -30,7 +30,6 @@ client = OpenAI(
   api_key=os.getenv("OPENAI_API_KEY"),
 )
 
-app.add_middleware(RateLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -38,6 +37,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(RateLimitMiddleware)
 
 class ToolCall(BaseModel):
     tool: str
@@ -150,7 +150,7 @@ app.mount("/code", StaticFiles(directory=os.path.abspath("render/code")))
 ############################################################
 
 @app.post("/generate")
-def generate_video_from_prompt(payload: Prompt):
+def generate_video_from_prompt(payload: Prompt, request: Request):
     prompt = payload.prompt
     print(classify_prompt(prompt))
     try:
@@ -161,6 +161,11 @@ def generate_video_from_prompt(payload: Prompt):
         else:
             code = get_direct_manim_code(prompt)
             video_path, py_path, error = save_and_render(code)
+        
+        if video_path is not None:
+            ip = request.client.host
+            request_counts[ip] = request_counts.get(ip, 0) + 1
+
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Generation failed: {e}")
@@ -184,10 +189,29 @@ def get_usage(request: Request):
     if is_logged_in:
         limit = 20
     else:
-        limit = 5
+        limit = 1
 
-    used = request_counts.get(ip, 0)  # ✅ fallback to 0
-    return JSONResponse(content={"used": used, "limit": limit})
+    if ip in request_counts:
+        used = request_counts[ip]
+    else:
+        used = 0
+
+    remaining = limit - used
+    if remaining < 0:
+        remaining = 0
+
+    if used >= limit:
+        limit_reached = True
+    else:
+        limit_reached = False
+
+    return JSONResponse(content={
+        "used": used,
+        "limit": limit,
+        "remaining": remaining,
+        "limit_reached": limit_reached
+    })
+
 
 
 @app.post("/signup")
@@ -196,12 +220,10 @@ def handle_signup(request: Request):
     if not clerk_id:
         raise HTTPException(status_code=400, detail="Missing Clerk ID")
 
-    # Check if user already exists
     user = supabase.table("users").select("*").eq("clerk_id", clerk_id).single().execute()
     if user.data:
         return {"msg": "User already exists"}
 
-    # Create new user
     supabase.table("users").insert({
         "clerk_id": clerk_id,
         "credits": 20
