@@ -15,9 +15,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             is_logged_in = False
 
         if is_logged_in:
-            limit = 20
+            limit = 10
         else:
-            limit = 1
+            limit = 3
 
         if request.url.path == "/generate":
             if ip in request_counts:

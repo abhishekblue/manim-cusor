@@ -43,8 +43,8 @@ A FastAPI-based backend and React frontend to convert natural language prompts i
  ---
 
 ## Rate Limiting
-- Guests: 5 video credits.
-- Logged-in users: 20 total credits.
+- Guests: 3 video credits.
+- Logged-in users: 10 total credits.
 - Data stored in Supabase.
 
 ---

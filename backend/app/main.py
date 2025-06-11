@@ -187,9 +187,9 @@ def get_usage(request: Request):
         is_logged_in = False
 
     if is_logged_in:
-        limit = 20
+        limit = 10
     else:
-        limit = 1
+        limit = 3
 
     if ip in request_counts:
         used = request_counts[ip]
@@ -226,7 +226,7 @@ def handle_signup(request: Request):
 
     supabase.table("users").insert({
         "clerk_id": clerk_id,
-        "credits": 20
+        "credits": 10
     }).execute()
 
     return {"msg": "User created with 10 credits"}
